@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Factura Diego Acevedo</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Arial,sans-serif;background:#ddd;padding:10px;}
+
+/* MODAL */
+.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:999;}
+.modal{background:#fff;border-radius:10px;padding:28px 32px;width:360px;box-shadow:0 8px 32px rgba(0,0,0,0.3);}
+.modal h2{font-size:18px;color:#1a4a8a;margin-bottom:6px;text-align:center;}
+.modal p{font-size:12px;color:#666;text-align:center;margin-bottom:18px;}
+.modal label{display:block;font-size:13px;font-weight:bold;color:#333;margin-bottom:4px;}
+.modal input{width:100%;border:1.5px solid #4a7fcb;border-radius:5px;padding:8px 10px;font-size:14px;margin-bottom:14px;outline:none;}
+.modal input:focus{border-color:#1a4a8a;}
+.modal button{width:100%;background:#1a4a8a;color:white;border:none;border-radius:6px;padding:10px;font-size:15px;font-weight:bold;cursor:pointer;letter-spacing:1px;}
+.modal button:hover{background:#0d3470;}
+
+/* FACTURA */
+.page{background:white;width:860px;margin:0 auto;padding:18px 20px;font-family:Arial,sans-serif;}
+.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+.brand h1{font-size:34px;font-weight:900;}
+.brand .sub{font-size:10px;font-weight:bold;margin-top:2px;}
+.brand .addr{font-size:9.5px;}
+.brand .rif0{font-size:10px;margin-top:3px;}
+.top-right{display:flex;flex-direction:column;gap:4px;min-width:210px;}
+.bf{border:1.5px solid #000;padding:3px 7px;font-size:10.5px;display:flex;align-items:center;}
+.bf b{margin-right:5px;white-space:nowrap;}
+.bf input{border:none;outline:none;font-size:10.5px;flex:1;background:transparent;}
+
+.ctrl-row{display:flex;align-items:center;justify-content:space-between;border:1.5px solid #000;padding:3px 8px;margin-bottom:5px;font-size:10.5px;}
+.ctrl-row input{border:none;border-bottom:1px solid #aaa;outline:none;font-size:10.5px;width:100px;background:transparent;}
+.red{color:red;font-weight:bold;font-size:13px;}
+
+.cl-row{display:flex;border:1.5px solid #000;border-bottom:none;}
+.cl-row b{font-size:9.5px;padding:4px 5px;border-right:1px solid #000;white-space:nowrap;}
+.cl-row input{border:none;outline:none;font-size:10.5px;padding:4px 6px;flex:1;background:transparent;}
+.dom-row{display:flex;border:1.5px solid #000;margin-bottom:8px;}
+.dom-row b{font-size:9.5px;padding:4px 5px;border-right:1px solid #000;white-space:nowrap;}
+.dom-row input{border:none;outline:none;font-size:10.5px;padding:4px 6px;flex:1;background:transparent;}
+
+table{width:100%;border-collapse:collapse;font-size:10.5px;}
+thead tr{background:#333;color:#fff;}
+thead th{padding:5px 3px;text-align:center;border:1px solid #555;font-size:10px;}
+tbody tr{height:26px;}
+tbody td{border:1px solid #ccc;text-align:center;padding:2px 3px;vertical-align:middle;}
+tbody td input{border:none;outline:none;font-size:10.5px;width:100%;text-align:center;background:transparent;}
+tbody td.dl input{text-align:left;}
+td.calc{background:#fafafa;font-size:10.5px;}
+
+.footer{display:flex;justify-content:space-between;border:1.5px solid #000;padding:7px 8px;margin-top:0;gap:8px;}
+.fl{font-size:9.5px;flex:1;}
+.fl .ct{font-weight:bold;background:#333;color:#fff;padding:2px 5px;display:inline-block;margin-bottom:3px;font-size:9px;}
+.fl .banco{border-bottom:1px solid #000;width:180px;margin-top:6px;font-size:9px;}
+.fl .tranf{margin-top:8px;font-size:9px;}
+
+.fm{display:flex;flex-direction:column;gap:3px;}
+.fm .r{display:flex;align-items:center;gap:3px;}
+.fm .lbl{background:#333;color:#fff;padding:2px 5px;font-size:9px;white-space:nowrap;width:105px;text-align:center;}
+.fm .val{border:1px solid #000;padding:2px 5px;min-width:120px;font-size:10px;text-align:right;}
+
+.fr{display:flex;flex-direction:column;gap:3px;}
+.fr .r{display:flex;align-items:center;gap:3px;}
+.fr .lbl{font-size:9px;font-weight:bold;white-space:nowrap;width:115px;}
+.fr .val{border:1px solid #000;padding:2px 5px;min-width:120px;font-size:10.5px;text-align:right;font-weight:bold;}
+.fr .total-val{color:red;}
+
+.pie{text-align:center;font-size:7.5px;margin-top:7px;color:#333;line-height:1.6;}
+.original{text-align:center;color:red;font-weight:bold;font-size:15px;margin-top:5px;letter-spacing:4px;}
+
+/* BOTON RECALCULAR */
+.btn-recalc{display:block;margin:8px auto 12px;background:#1a4a8a;color:#fff;border:none;border-radius:6px;padding:7px 24px;font-size:13px;font-weight:bold;cursor:pointer;letter-spacing:1px;}
+.btn-recalc:hover{background:#0d3470;}
+.tasa-info{text-align:center;font-size:11px;color:#555;margin-bottom:6px;}
+</style>
+</head>
+<body>
+
+<!-- MODAL DE ENTRADA -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2>💵 Datos de Conversión</h2>
+    <p>Ingresa los valores para calcular la factura en bolívares</p>
+    <label>Base Imponible en USD ($):</label>
+    <input type="number" id="inputUSD" placeholder="Ej: 500.00" step="0.01" min="0">
+    <label>Tasa del día (Bs por $1):</label>
+    <input type="number" id="inputTasa" placeholder="Ej: 47.50" step="0.01" min="0">
+    <button onclick="aplicar()">✔ CALCULAR FACTURA</button>
+  </div>
+</div>
+
+<!-- FACTURA -->
+<div class="page" id="factura">
+
+  <button class="btn-recalc" onclick="abrirModal()">✏️ Cambiar monto / tasa</button>
+  <div class="tasa-info" id="tasaInfo">—</div>
+
+  <!-- ENCABEZADO -->
+  <div class="header">
+    <div class="brand">
+      <h1>Diego Acevedo</h1>
+      <div class="sub">Domicilio Fiscal: CALLE 5 CASA NRO 46 URB LA MARINA SECTOR 14</div>
+      <div class="addr">TRANSVERSAL 14 MARACAIBO ZULIA ZONA POSTAL 4001</div>
+      <div class="rif0"><b>RIF:</b> V302510888</div>
+    </div>
+    <div class="top-right">
+      <div class="bf"><b>FECHA:</b><input type="text" placeholder="DD/MM/AAAA"></div>
+      <div class="bf"><b>RIF:</b><input type="text" placeholder="J000000000"></div>
+      <div class="bf"><b>TELÉFONO:</b><input type="text" placeholder="(    )"></div>
+    </div>
+  </div>
+
+  <!-- CONTROL / FACTURA Nº -->
+  <div class="ctrl-row">
+    <span><b>Nº DE CONTROL: 00-</b> <input type="text" placeholder="00000025"></span>
+    <span><b>FACTURA:</b> <span class="red">Nº </span><input type="text" placeholder="000025" style="color:red;font-weight:bold;width:70px;"></span>
+  </div>
+
+  <!-- CLIENTE -->
+  <div class="cl-row"><b>NOMBRE O RAZÓN SOCIAL:</b><input type="text" placeholder=""></div>
+  <div class="dom-row"><b>DOMICILIO FISCAL:</b><input type="text" placeholder=""></div>
+
+  <!-- TABLA -->
+  <table>
+    <thead>
+      <tr>
+        <th style="width:46px">CANT.</th>
+        <th>CONCEPTO O DESCRIPCIÓN</th>
+        <th style="width:120px">PRECIO UNIT. Bs</th>
+        <th style="width:120px">MONTO Bs</th>
+        <th style="width:100px">I.V.A Bs</th>
+        <th style="width:115px">TOTAL Bs</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><input type="number" id="c0" value="1" min="0" oninput="recalc()"></td><td class="dl"><input type="text" id="d0" placeholder="Descripción / OC#..."></td><td class="calc" id="pu0">—</td><td class="calc" id="mo0">—</td><td class="calc" id="iv0">—</td><td class="calc" id="to0">—</td></tr>
+      <tr><td><input type="number" id="c1" min="0" oninput="recalc()"></td><td class="dl"><input type="text" id="d1"></td><td class="calc" id="pu1"></td><td class="calc" id="mo1"></td><td class="calc" id="iv1"></td><td class="calc" id="to1"></td></tr>
+      <tr><td><input type="number" id="c2" min="0" oninput="recalc()"></td><td class="dl"><input type="text" id="d2"></td><td class="calc" id="pu2"></td><td class="calc" id="mo2"></td><td class="calc" id="iv2"></td><td class="calc" id="to2"></td></tr>
+      <tr><td><input type="number" id="c3" min="0" oninput="recalc()"></td><td class="dl"><input type="text" id="d3"></td><td class="calc" id="pu3"></td><td class="calc" id="mo3"></td><td class="calc" id="iv3"></td><td class="calc" id="to3"></td></tr>
+      <tr><td><input type="number" id="c4" min="0" oninput="recalc()"></td><td class="dl"><input type="text" id="d4"></td><td class="calc" id="pu4"></td><td class="calc" id="mo4"></td><td class="calc" id="iv4"></td><td class="calc" id="to4"></td></tr>
+    </tbody>
+  </table>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="fl">
+      <span class="ct">CONDICIONES DE PAGO</span>&nbsp;<span class="ct">FORMA DE PAGO</span>
+      <div style="margin-top:3px;font-size:9.5px;">CRÉDITO ☐ &nbsp; CONTADO ☐ &nbsp; EFECTIVO ☐</div>
+      <div style="margin-top:4px;font-size:9px;">No. <span style="display:inline-block;border-bottom:1px solid #000;width:150px;">&nbsp;</span></div>
+      <div class="banco">BANCO: &nbsp;</div>
+      <div class="tranf">No. de TRANF. ☐ &nbsp; TARJ. DÉBITO ☐ &nbsp; TARJ. CRÉDITO ☐</div>
+    </div>
+    <div class="fm">
+      <div class="r"><span class="lbl">DESCUENTO:</span><span class="val">0,00</span></div>
+      <div class="r"><span class="lbl">SUB-TOTAL BS:</span><span class="val" id="fSubtotal">—</span></div>
+      <div class="r"><span class="lbl">BASE EXENTA:</span><span class="val">—</span></div>
+    </div>
+    <div class="fr">
+      <div class="r"><span class="lbl">BASE IMPONIBLE:</span><span class="val" id="fBase">—</span></div>
+      <div class="r"><span class="lbl">IVA: 16% BS.</span><span class="val" id="fIva">—</span></div>
+      <div class="r"><span class="lbl">TOTAL BS:</span><span class="val total-val" id="fTotal">—</span></div>
+    </div>
+  </div>
+
+  <div class="pie">
+    Impreso por: Impresos de Calidad, c.a. RIF: J-31287783-9. Autorizado por providencia No. SENIAT/04/00490 de fecha 04/03/2008. Telf.: (0424) 6590659. Región Zuliana. Facturas Emitidas: 250.<br>
+    Correspondiente No. de Control desde el No. 00-00000001 hasta el No. 00-00000250. Nº de Factura desde el No. 00-00000001 hasta el No. 00-00000250. Fecha de Impresión 10-12-2025.<br>
+    ESTA FACTURA VA SIN TACHADURAS NI ENMENDADURAS. SOLO EL ORIGINAL DA DERECHO A CRÉDITO FISCAL.
+  </div>
+  <div class="original">ORIGINAL</div>
+</div>
+
+<script>
+let gUSD=0, gTasa=0;
+
+function fmt(n){return n.toLocaleString('es-VE',{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+function abrirModal(){document.getElementById('modalOverlay').style.display='flex';}
+
+function aplicar(){
+  const u=parseFloat(document.getElementById('inputUSD').value)||0;
+  const t=parseFloat(document.getElementById('inputTasa').value)||0;
+  if(u<=0||t<=0){alert('Por favor ingresa valores válidos mayores a 0.');return;}
+  gUSD=u; gTasa=t;
+  document.getElementById('modalOverlay').style.display='none';
+  document.getElementById('tasaInfo').textContent=
+    '💵 Base: $'+u.toFixed(2)+' USD  |  💱 Tasa: '+fmt(t)+' Bs/$  |  Precio unitario Bs: '+fmt(u*t);
+  recalc();
+}
+
+function recalc(){
+  let sumBase=0, sumIva=0;
+  for(let i=0;i<5;i++){
+    const c=parseFloat(document.getElementById('c'+i).value)||0;
+    if(gUSD>0&&gTasa>0&&c>0){
+      const pu=gUSD*gTasa;
+      const mo=c*pu;
+      const iv=mo*0.16;
+      const tot=mo+iv;
+      sumBase+=mo; sumIva+=iv;
+      document.getElementById('pu'+i).textContent=fmt(pu);
+      document.getElementById('mo'+i).textContent=fmt(mo);
+      document.getElementById('iv'+i).textContent=fmt(iv);
+      document.getElementById('to'+i).textContent=fmt(tot);
+    } else {
+      ['pu','mo','iv','to'].forEach(p=>{document.getElementById(p+i).textContent='';});
+    }
+  }
+  if(sumBase>0){
+    document.getElementById('fSubtotal').textContent=fmt(sumBase);
+    document.getElementById('fBase').textContent=fmt(sumBase);
+    document.getElementById('fIva').textContent=fmt(sumIva);
+    document.getElementById('fTotal').textContent=fmt(sumBase+sumIva);
+  } else {
+    ['fSubtotal','fBase','fIva','fTotal'].forEach(id=>{document.getElementById(id).textContent='—';});
+  }
+}
+</script>
+</body>
+</html>
